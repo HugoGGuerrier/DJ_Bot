@@ -1,3 +1,5 @@
 .idea/
 config.py
 DJ_Bot.log
+__pycache__
+dj_bot/__pycache__
