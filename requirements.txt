@@ -1,2 +1,6 @@
 # Discord API
-discord.py==1.5.1
+discord.py[voice]>=1.5.1
+
+# Youtube API
+google-api-python-client>=1.12.5
+youtube_dl>=2020.11.12
