@@ -1,5 +1,15 @@
+# The PyCharm IDE
 .idea/
-config.py
-DJ_Bot.log
+
+# Python cache
 __pycache__
 dj_bot/__pycache__
+
+# Virtual environment
+bin
+lib
+pyvenv.cfg
+
+# The app file to ignore
+config.py
+DJ_Bot.log
