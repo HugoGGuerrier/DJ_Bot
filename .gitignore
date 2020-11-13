@@ -9,7 +9,10 @@ dj_bot/__pycache__
 bin
 lib
 pyvenv.cfg
+venv
 
 # The app file to ignore
 config.py
 DJ_Bot.log
+.song_cache
+.songs
