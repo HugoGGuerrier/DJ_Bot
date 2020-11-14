@@ -91,7 +91,7 @@ print("Cleaning successful !\n")
 # Install the pip dependencies
 
 print("===== Install pip dependencies =====\n")
-pip.main("install -r requirements.txt")
+pip.main(["install", "-r", "requirements.txt"])
 print("")
 
 print("===== Installation complete ======")
