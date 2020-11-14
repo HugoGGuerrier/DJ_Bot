@@ -20,3 +20,4 @@ config.py
 DJ_Bot.log
 .song_cache
 .songs
+.tmp
