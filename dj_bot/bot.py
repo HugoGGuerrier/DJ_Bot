@@ -342,7 +342,7 @@ class DJBot:
         Erase all song files except those that are needed
         """
 
-        for filename, dirs, files in os.walk(".songs/"):
+        for filename, dirs, files in os.walk("./.songs/"):
             for file in files:
                 rm = True
                 for sng in self.song_queue:
@@ -352,7 +352,7 @@ class DJBot:
                     if self.current_song.video_id + ".mp4" == file:
                         rm = False
                 if rm:
-                    os.remove(".songs/" + file)
+                    os.remove("./.songs/" + file)
 
     def clean_song_cache(self, user: discord.Member) -> None:
         """
@@ -365,7 +365,7 @@ class DJBot:
         # Verify that the user is an admin
         if self.is_admin(user):
             try:
-                os.remove(".song_cache")
+                os.remove("./.song_cache")
             except FileNotFoundError as _:
                 pass
             self.clean_song_files()

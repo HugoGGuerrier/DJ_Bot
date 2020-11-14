@@ -191,9 +191,9 @@ class DJYoutubeClient:
 
         # Set the youtube dl options
         self.ytdl_opts: dict = {
-            "outtmpl": ".songs/%(id)s.%(ext)s",
+            "outtmpl": "./.songs/%(id)s.%(ext)s",
             "logger": logging.getLogger(LOGGER_NAME),
-            "download_archive": ".song_cache",
+            "download_archive": "./.song_cache",
             "format": "mp4"
         }
 

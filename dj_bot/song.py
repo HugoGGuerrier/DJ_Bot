@@ -75,4 +75,4 @@ class Song:
         """
 
         source_file = ".songs/" + self.video_id + ".mp4"
-        return discord.FFmpegPCMAudio(source=source_file, executable="dj_bot/ffmpeg/ffmpeg_" + os_model)
+        return discord.FFmpegPCMAudio(source=source_file, executable="./dj_bot/ffmpeg/ffmpeg_" + os_model)
