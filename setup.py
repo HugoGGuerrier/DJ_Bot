@@ -56,36 +56,36 @@ print("===== Download and install dependencies =====\n")
 # Download the dependencies
 
 print("Download the ffmpeg binary for Linux 64... (It can take few minutes)")
-urllib.request.urlretrieve(ffmpeg_lin_url, ".tmp/fflin.tar.xz", download_hook)
+urllib.request.urlretrieve(ffmpeg_lin_url, "./.tmp/fflin.tar.xz", download_hook)
 print("Download successful !")
 
 print("Download the ffmpeg binary for Windows 64... (It can take few minutes)")
-urllib.request.urlretrieve(ffmpeg_win_url, ".tmp/ffwin.zip", download_hook)
+urllib.request.urlretrieve(ffmpeg_win_url, "./.tmp/ffwin.zip", download_hook)
 print("Download successful !")
 
 # Extract and install dependencies
 
 print("Extracting the ffmpeg binary for Linux...")
-fflin_tar = tarfile.open(name=".tmp/fflin.tar.xz")
-fflin_tar.extract( fflin_tar.getmember("ffmpeg-4.3.1-amd64-static/ffmpeg"), path=".tmp/" )
-os.rename(".tmp/ffmpeg-4.3.1-amd64-static/ffmpeg", "dj_bot/ffmpeg/ffmpeg_linux64")
+fflin_tar = tarfile.open(name="./.tmp/fflin.tar.xz")
+fflin_tar.extract( fflin_tar.getmember("ffmpeg-4.3.1-amd64-static/ffmpeg"), path="./.tmp/" )
+os.rename("./.tmp/ffmpeg-4.3.1-amd64-static/ffmpeg", "./dj_bot/ffmpeg/ffmpeg_linux64")
 print("Exctraction successful !")
 
 print("Extracting the ffmpeg binary for Windows...")
-ffwin_zip = zipfile.ZipFile(".tmp/ffwin.zip")
-ffwin_zip.extract( "ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", path=".tmp/" )
-os.rename(".tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", "dj_bot/ffmpeg/ffmpeg_win64")
+ffwin_zip = zipfile.ZipFile("./.tmp/ffwin.zip")
+ffwin_zip.extract( "ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", path="./.tmp/" )
+os.rename("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", "./dj_bot/ffmpeg/ffmpeg_win64")
 print("Exctraction successful !")
 
 # Clean the temporary directory
 
 print("Cleaning temporary files...")
-os.remove(".tmp/fflin.tar.xz")
-os.rmdir(".tmp/ffmpeg-4.3.1-amd64-static/")
-os.remove(".tmp/ffwin.zip")
-os.rmdir(".tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/")
-os.rmdir(".tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/")
-os.rmdir(".tmp/")
+os.remove("./.tmp/fflin.tar.xz")
+os.rmdir("./.tmp/ffmpeg-4.3.1-amd64-static/")
+os.remove("./.tmp/ffwin.zip")
+os.rmdir("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/")
+os.rmdir("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/")
+os.rmdir("./.tmp/")
 print("Cleaning successful !\n")
 
 # Install the pip dependencies
