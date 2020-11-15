@@ -1,4 +1,4 @@
-# DJ Bot : A simple Discord Bot to play music in a guild.
+# DJ Bot : A simple Discord Bot to play music in a voice channel.
 
 ## Dependencies :
 
