@@ -1,5 +1,5 @@
-from dj_bot import clients
-from dj_bot import song
+from dj_bot import clients, song, utils
+from dj_bot import DOWNLOAD_DIR, CACHE_FILE
 
 import discord
 import os
@@ -69,13 +69,16 @@ class DJBot:
         return -> bool = True if the user is an admin, False else
         """
 
+        # Get the real user name
+        user_name: str = utils.get_user_fullname(user)
+
         # Verify the roles
         for role in user.roles:
             if role.name in self.admin_roles:
                 return True
 
         # Verify the name
-        if user.display_name in self.admin_users:
+        if user_name in self.admin_users:
             return True
 
         # Return the default response
@@ -97,16 +100,19 @@ class DJBot:
         else:
             self.send_error_message("Cannot add a song, the queue is full  :disappointed_relieved:")
 
-    def song_is_ready(self, sng: song.Song):
+    def song_is_ready(self, sng: song.Song) -> None:
         """
         Function to call when a song is downloaded
+
+        param :
+            - sng : song.Song = The song that is ready
         """
 
         if sng.video_id == self.song_queue[0].video_id and self.state == IDLE_STATE:
             self.current_song = self.song_queue.pop(0)
             self.play_music()
 
-    def next_in_queue(self, e):
+    def next_in_queue(self, _) -> None:
         """
         Play the next song in the queue
 
@@ -114,17 +120,15 @@ class DJBot:
             - _ = An unused parameter to avoid errors with the callback
         """
 
-        if len(self.song_queue) > 0:
-            self.discord_client.stop_song()
-            self.current_song = None
-            if self.song_queue[0].is_ready:
-                self.current_song = self.song_queue.pop(0)
-                self.discord_client.play_song(self.current_song)
-            else:
-                self.state = IDLE_STATE
+        # Stop the current song to make sure
+        self.discord_client.stop_song()
+        self.current_song = None
+
+        # Play the next song if it exists
+        if len(self.song_queue) > 0 and self.song_queue[0].is_ready:
+            self.current_song = self.song_queue.pop(0)
+            self.discord_client.play_song(self.current_song)
         else:
-            self.discord_client.stop_song()
-            self.current_song = None
             self.state = IDLE_STATE
 
     # --- Music manipulation methods
@@ -144,35 +148,38 @@ class DJBot:
         sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"])
         self.add_song(sng)
 
-    def choose_search(self, choose_id: str, user_name: str) -> None:
+    def choose_search(self, choose_id: str, user: discord.Member) -> None:
         """
         Choose a search result after an user made a search
 
         params :
             - choose_id: str = The id of the search option
-            - user_name: str = The name of the user who made the choice
+            - user: discord.Member = The user who made the choice
         """
 
         # Get the user search list or None
+        user_name = utils.get_user_fullname(user)
         user_search = self.user_search.get(user_name, None)
 
         # If the user made a research provide a result, else send an error message
         if user_search is not None:
-            try:
-                # Get the correct song dict and create the song instance
-                song_dict: dict = user_search[int(choose_id) - 1]
-                sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"])
-                self.add_song(sng)
+            if choose_id != "":
+                try:
+                    # Get the correct song dict and create the song instance
+                    song_dict: dict = user_search[int(choose_id) - 1]
+                    sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"])
+                    self.add_song(sng)
 
-                # Erase the user search
-                self.user_search[user_name] = None
-            except ValueError as _:
-                self.send_error_message("Id must be an integer")
-            except IndexError as _:
-                self.send_error_message("Choose an id between 0 and " + str(len(user_search) - 1))
-
+                    # Erase the user search
+                    self.user_search[user_name] = None
+                except ValueError as _:
+                    self.send_message("Id must be an integer  :angry:")
+                except IndexError as _:
+                    self.send_message("Choose an id between 0 and " + str(len(user_search) - 1) + " (you stupid)")
+            else:
+                self.send_message("Choose an id between 0 and " + str(len(user_search) - 1) + " (you stupid)")
         else:
-            self.send_message("Perform a **_!search_** before choosing an id :slight_smile:")
+            self.send_message("Perform a **_!search_** before choosing an id  :slight_smile:")
 
     def play_music(self) -> None:
         """
@@ -285,19 +292,20 @@ class DJBot:
         # Send the queue message
         self.send_message(queue_message)
 
-    def show_search(self, search_q: str, user_name: str) -> None:
+    def show_search(self, search_q: str, user: discord.Member) -> None:
         """
         Send a message with the result of the research for a keyword
 
         params :
             - search_q: str = The search keyword
-            - user_name: str = The user who made the research
+            - user: discord.Member = The user who made the research
         """
 
         # Get the search result from the client
         search_result: list = self.youtube_client.search_videos(search_q, self.max_result)
 
         # Store the user search
+        user_name = user.name + "#" + user.discriminator
         self.user_search[user_name] = search_result
 
         # Create the search message
@@ -342,7 +350,7 @@ class DJBot:
         Erase all song files except those that are needed
         """
 
-        for filename, dirs, files in os.walk("./.songs/"):
+        for filename, dirs, files in os.walk(DOWNLOAD_DIR):
             for file in files:
                 rm = True
                 for sng in self.song_queue:
@@ -352,7 +360,7 @@ class DJBot:
                     if self.current_song.video_id + ".mp4" == file:
                         rm = False
                 if rm:
-                    os.remove("./.songs/" + file)
+                    os.remove(DOWNLOAD_DIR + file)
 
     def clean_song_cache(self, user: discord.Member) -> None:
         """
@@ -365,7 +373,7 @@ class DJBot:
         # Verify that the user is an admin
         if self.is_admin(user):
             try:
-                os.remove("./.song_cache")
+                os.remove(CACHE_FILE)
             except FileNotFoundError as _:
                 pass
             self.clean_song_files()
@@ -379,6 +387,13 @@ class DJBot:
         """
 
         self.discord_client.run(self.discord_token)
+
+    def save(self) -> None:
+        """
+        Save the current bot state in a file to load it the next time
+        """
+
+        pass
 
     def shutdown(self, user: discord.Member) -> None:
         """

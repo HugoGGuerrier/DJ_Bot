@@ -1,4 +1,4 @@
-from dj_bot import LOGGER_NAME
+from dj_bot import LOGGER_NAME, FFMPEG_DIR, DOWNLOAD_DIR
 
 import logging
 import discord
@@ -21,7 +21,7 @@ class Song:
             - title: str = The song youtube title
             - video_id: str = The song video id
             - duration: str = The song duration in a string
-            - ready_func = The function to call when the song will be ready
+            - ready_func = The function to call when the song will be ready to be played
         """
 
         # Assign the attributes
@@ -74,5 +74,5 @@ class Song:
             - os_model: str = The model of the current os
         """
 
-        source_file = ".songs/" + self.video_id + ".mp4"
-        return discord.FFmpegPCMAudio(source=source_file, executable="./dj_bot/ffmpeg/ffmpeg_" + os_model)
+        source_file = DOWNLOAD_DIR + self.video_id + ".mp4"
+        return discord.FFmpegPCMAudio(source=source_file, executable= FFMPEG_DIR + "ffmpeg_" + os_model)

@@ -1,9 +1,13 @@
+import discord
+
+
 def parse_youtube_time(yt_time: str) -> str:
     """
     Parse the Youtube time format to the hh:mm:ss format
 
     params :
         - yt_time: str = The youtube time string
+    return -> str = The youtube time formatted in a cooler format
     """
 
     # Remove the PT at the start
@@ -39,3 +43,15 @@ def parse_youtube_time(yt_time: str) -> str:
 
     # Return the string result
     return res
+
+
+def get_user_fullname(user: discord.Member) -> str:
+    """
+    Get the full name of a discord user (i.e. MyName#0000)
+
+    params :
+        - user: discord.Member : The user you want to get the name from
+    return -> str = The name of the user
+    """
+
+    return user.name + "#" + user.discriminator

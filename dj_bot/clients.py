@@ -1,8 +1,5 @@
-from dj_bot import LOGGER_NAME
-from dj_bot import bot
-from dj_bot import command
-from dj_bot import song
-from dj_bot.utils import parse_youtube_time
+from dj_bot import bot, command, song, utils
+from dj_bot import LOGGER_NAME, DOWNLOAD_DIR, CACHE_FILE
 
 import discord
 import googleapiclient.discovery
@@ -71,9 +68,9 @@ class DJDiscordClient(discord.Client):
         elif com.name == "!queue":
             self.dj_bot.show_queue()
         elif com.name == "!search":
-            self.dj_bot.show_search(com.arg, message.author.name + "#" + message.author.discriminator)
+            self.dj_bot.show_search(com.arg, message.author)
         elif com.name == "!choose":
-            self.dj_bot.choose_search(com.arg, message.author.name + "#" + message.author.discriminator)
+            self.dj_bot.choose_search(com.arg, message.author)
         elif com.name == "!empty-queue":
             self.dj_bot.empty_queue(message.author)
         elif com.name == "!clean-cache":
@@ -131,8 +128,8 @@ class DJDiscordClient(discord.Client):
         Disconnect the bot from the discord server
         """
 
-        self.loop.create_task(self.play_chan_client.disconnect(force=True))
         self.play_chan_client.cleanup()
+        self.loop.create_task(self.play_chan_client.disconnect(force=True))
 
     # ------ Handling methods -----
 
@@ -191,9 +188,9 @@ class DJYoutubeClient:
 
         # Set the youtube dl options
         self.ytdl_opts: dict = {
-            "outtmpl": "./.songs/%(id)s.%(ext)s",
+            "outtmpl": DOWNLOAD_DIR + "%(id)s.%(ext)s",
             "logger": logging.getLogger(LOGGER_NAME),
-            "download_archive": "./.song_cache",
+            "download_archive": CACHE_FILE,
             "format": "mp4"
         }
 
@@ -246,7 +243,7 @@ class DJYoutubeClient:
 
         for i in range(len(raw_result["items"])):
             video_duration = raw_result["items"][i]["contentDetails"]["duration"]
-            final_result[i]["duration"] = parse_youtube_time(video_duration)
+            final_result[i]["duration"] = utils.parse_youtube_time(video_duration)
 
         # Return the final list
         return final_result
