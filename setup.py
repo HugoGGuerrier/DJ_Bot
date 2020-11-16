@@ -68,13 +68,15 @@ print("Download successful !")
 print("Extracting the ffmpeg binary for Linux...")
 fflin_tar = tarfile.open(name="./.tmp/fflin.tar.xz")
 fflin_tar.extract( fflin_tar.getmember("ffmpeg-4.3.1-amd64-static/ffmpeg"), path="./.tmp/" )
-os.rename("./.tmp/ffmpeg-4.3.1-amd64-static/ffmpeg", "./dj_bot/ffmpeg/ffmpeg_linux64")
+fflin_tar.close()
+os.replace("./.tmp/ffmpeg-4.3.1-amd64-static/ffmpeg", "./dj_bot/ffmpeg/ffmpeg_linux64")
 print("Exctraction successful !")
 
 print("Extracting the ffmpeg binary for Windows...")
 ffwin_zip = zipfile.ZipFile("./.tmp/ffwin.zip")
 ffwin_zip.extract( "ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", path="./.tmp/" )
-os.rename("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", "./dj_bot/ffmpeg/ffmpeg_win64")
+ffwin_zip.close()
+os.replace("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", "./dj_bot/ffmpeg/ffmpeg_win64")
 print("Exctraction successful !")
 
 # Clean the temporary directory

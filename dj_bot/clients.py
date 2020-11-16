@@ -107,7 +107,7 @@ class DJDiscordClient(discord.Client):
         Stop the current song and clear the audio source
         """
 
-        if self.play_chan_client.is_playing():
+        if self.play_chan_client.is_playing() or self.play_chan_client.is_paused():
             self.play_chan_client.stop()
 
     def pause_song(self):

@@ -1,5 +1,9 @@
 # DJ Bot : A simple Discord Bot to play music in a guild.
 
+Version : 1.0a
+License : MIT
+Author : Guerrier Hugo
+
 ## Dependencies :
 
 * Python 3
