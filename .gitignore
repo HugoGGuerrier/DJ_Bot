@@ -4,7 +4,7 @@
 
 # Python cache
 __pycache__
-dj_bot/__pycache__
+*/__pycache__
 
 # Virtual environment
 bin
@@ -21,3 +21,4 @@ DJ_Bot.log
 .song_cache
 .songs
 .tmp
+.save
