@@ -13,7 +13,7 @@ pyvenv.cfg
 venv
 
 # ffmpeg binaries
-dj_bot/ffmpeg/
+ffmpeg
 
 # The app file to ignore
 config.py
