@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import shutil
 import urllib.request
 import tarfile
 import zipfile
@@ -9,8 +10,8 @@ import pip
 
 # ----- Setup script for the DJ_bot application -----
 
-# Download advance display function
 
+# Display the download state in the terminal
 def download_hook(block_count, block_size, total_size):
     get_size = block_count * block_size
     get_prop = get_size / total_size
@@ -34,66 +35,125 @@ def download_hook(block_count, block_size, total_size):
         sys.stdout.flush()
 
 
+# Extract a tar archive file into a specific path
+def extract_tar(archive, member, final):
+    tar_file = tarfile.open(archive)
+    tar_file.extract(member=member, path=tmp_dir)
+    tar_file.close()
+    os.replace(tmp_dir + member, final)
+
+
+# Extract a zip archive file into a specific path
+def extract_zip(archive, member, final):
+    zip_file = zipfile.ZipFile(archive)
+    zip_file.extract(member=member, path=tmp_dir)
+    zip_file.close()
+    os.replace(tmp_dir + member, final)
+
+
+# Define the directory and file variables
+tmp_dir = "./.tmp/"
+ffmpeg_dir = "./ffmpeg/"
+
+
+# Define ffmpeg download urls, file names and extracting function
+ffmpeg_download_info = [
+    {
+        "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+        "file": "fflinamd64.tar.xz",
+        "func": extract_tar,
+        "member": "ffmpeg-4.3.1-amd64-static/ffmpeg",
+    },
+    {
+        "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
+        "file": "fflini686.tar.xz",
+        "func": extract_tar,
+        "member": "ffmpeg-4.3.1-i686-static/ffmpeg"
+    },
+    {
+        "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+        "file": "fflinarm64.tar.xz",
+        "func": extract_tar,
+        "member": "ffmpeg-4.3.1-arm64-static/ffmpeg"
+    },
+    {
+        "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz",
+        "file": "fflinarmhf.tar.xz",
+        "func": extract_tar,
+        "member": "ffmpeg-4.3.1-armhf-static/ffmpeg"
+    },
+    {
+        "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armel-static.tar.xz",
+        "file": "fflinarmel.tar.xz",
+        "func": extract_tar,
+        "member": "ffmpeg-4.3.1-armel-static/ffmpeg"
+    },
+    {
+        "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+        "file": "ffwin64.zip",
+        "func": extract_zip,
+        "member": "ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe"
+    }
+]
+
+
+# Ask the user the ffmpeg binary he/she wants to download
+arch_choice = -1
+
+print("To avoid BIG and USELESS downloads, please choose your OS and CPU model in the list below :")
+print("\t1 - Linux x64 (amd64)")
+print("\t2 - Linux x86 (i686)")
+print("\t3 - Linux arm64")
+print("\t4 - Linux armhf")
+print("\t5 - Linux armel")
+print("\t6 - Windows 64")
+
+while arch_choice == -1:
+    try:
+        arch_choice = int(input("Input a number : ")) - 1
+        if arch_choice < 0 or arch_choice > len(ffmpeg_download_info) - 1:
+            print("Input a number between 1 and " + str(len(ffmpeg_download_info)))
+            arch_choice = -1
+    except ValueError as _:
+        print("Please input a number...")
+        arch_choice = -1
+
+ffmpeg_download_url = ffmpeg_download_info[arch_choice]["url"]
+ffmpeg_archive = tmp_dir + ffmpeg_download_info[arch_choice]["file"]
+ffmpeg_member = ffmpeg_download_info[arch_choice]["member"]
+ffmpeg_extract_func = ffmpeg_download_info[arch_choice]["func"]
+
+
 # Create the needed directories
-
 try:
-    os.mkdir(".tmp/")
+    os.mkdir(tmp_dir)
 except FileExistsError as _:
     pass
 
 try:
-    os.mkdir("dj_bot/ffmpeg/")
+    os.mkdir(ffmpeg_dir)
 except FileExistsError as _:
     pass
 
-# Set the download urls
 
-ffmpeg_lin_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
-ffmpeg_win_url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+# Finally, start the installation
+print("\n===== Download and install dependencies =====\n")
 
-print("===== Download and install dependencies =====\n")
-
-# Download the dependencies
-
-print("Download the ffmpeg binary for Linux 64... (It can take few minutes)")
-urllib.request.urlretrieve(ffmpeg_lin_url, "./.tmp/fflin.tar.xz", download_hook)
+# Download the ffmpeg binary
+print("Download the ffmpeg binary... (It can take few minutes)")
+urllib.request.urlretrieve(ffmpeg_download_url, ffmpeg_archive, download_hook)
 print("Download successful !")
 
-print("Download the ffmpeg binary for Windows 64... (It can take few minutes)")
-urllib.request.urlretrieve(ffmpeg_win_url, "./.tmp/ffwin.zip", download_hook)
-print("Download successful !")
-
-# Extract and install dependencies
-
-print("Extracting the ffmpeg binary for Linux...")
-fflin_tar = tarfile.open(name="./.tmp/fflin.tar.xz")
-fflin_tar.extract( fflin_tar.getmember("ffmpeg-4.3.1-amd64-static/ffmpeg"), path="./.tmp/" )
-fflin_tar.close()
-os.replace("./.tmp/ffmpeg-4.3.1-amd64-static/ffmpeg", "./dj_bot/ffmpeg/ffmpeg_linux64")
-print("Exctraction successful !")
-
-print("Extracting the ffmpeg binary for Windows...")
-ffwin_zip = zipfile.ZipFile("./.tmp/ffwin.zip")
-ffwin_zip.extract( "ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", path="./.tmp/" )
-ffwin_zip.close()
-os.replace("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/ffmpeg.exe", "./dj_bot/ffmpeg/ffmpeg_win64")
-print("Exctraction successful !")
+# Install the ffmpeg binary
+print("Install the ffmpeg binary...")
+ffmpeg_extract_func(ffmpeg_archive, ffmpeg_member, ffmpeg_dir + "ffmpeg")
+print("Installation successful !")
 
 # Clean the temporary directory
-
-print("Cleaning temporary files...")
-os.remove("./.tmp/fflin.tar.xz")
-os.rmdir("./.tmp/ffmpeg-4.3.1-amd64-static/")
-os.remove("./.tmp/ffwin.zip")
-os.rmdir("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/bin/")
-os.rmdir("./.tmp/ffmpeg-4.3.1-2020-11-08-essentials_build/")
-os.rmdir("./.tmp/")
-print("Cleaning successful !\n")
+shutil.rmtree(tmp_dir, ignore_errors=True)
 
 # Install the pip dependencies
-
-print("===== Install pip dependencies =====\n")
+print("\n===== Install pip dependencies =====\n")
 pip.main(["install", "-r", "requirements.txt"])
-print("")
 
-print("===== Installation complete ======")
+print("\n===== Installation complete ======")

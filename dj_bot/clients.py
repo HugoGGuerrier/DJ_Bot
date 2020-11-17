@@ -17,7 +17,7 @@ class DJDiscordClient(discord.Client):
 
     # ----- Constructor -----
 
-    def __init__(self, dj_bot, request_channel: str, playing_channel: str, os_model: str):
+    def __init__(self, dj_bot, request_channel: str, playing_channel: str):
         """
         Create a new discord client with the request and the playing channel
 
@@ -34,7 +34,6 @@ class DJDiscordClient(discord.Client):
         self.dj_bot: bot.DJBot = dj_bot
         self.req_chan_name: str = request_channel
         self.play_chan_name: str = playing_channel
-        self.os_model = os_model
         self.req_chan: discord.TextChannel = None
         self.play_chan: discord.VoiceChannel = None
         self.play_chan_client: discord.VoiceClient = None
@@ -97,7 +96,7 @@ class DJDiscordClient(discord.Client):
             - sng: song.Song = The song you want to play
         """
 
-        self.play_chan_client.play(sng.get_audio_source(self.os_model), after=self.dj_bot.next_in_queue)
+        self.play_chan_client.play(sng.get_audio_source(), after=self.dj_bot.next_in_queue)
 
     def stop_song(self):
         """

@@ -66,13 +66,10 @@ class Song:
             # Log the song downloading
             logging.getLogger(LOGGER_NAME).info("Song " + self.title + " - " + self.video_id + " has been downloaded")
 
-    def get_audio_source(self, os_model: str) -> discord.AudioSource:
+    def get_audio_source(self) -> discord.AudioSource:
         """
         Get the song audio source to play it in discord
-
-        params :
-            - os_model: str = The model of the current os
         """
 
         source_file = DOWNLOAD_DIR + self.video_id + ".mp4"
-        return discord.FFmpegPCMAudio(source=source_file, executable= FFMPEG_DIR + "ffmpeg_" + os_model)
+        return discord.FFmpegPCMAudio(source=source_file, executable=FFMPEG_DIR + "ffmpeg")

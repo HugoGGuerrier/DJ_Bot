@@ -24,7 +24,6 @@ class DJBot:
             self,
             discord_token: str,
             youtube_token: str,
-            os_model: str,
             request_channel: str,
             playing_channel: str,
             admin_users: list,
@@ -39,7 +38,6 @@ class DJBot:
         # Assign the attributes
         self.discord_token: str = discord_token
         self.youtube_token: str = youtube_token
-        self.os_model: str = os_model
         self.req_channel: str = request_channel
         self.play_channel: str = playing_channel
         self.admin_users: list = admin_users
@@ -52,7 +50,7 @@ class DJBot:
         self.current_song: song.Song = None
         self.user_search: dict = dict()
 
-        self.discord_client: clients.DJDiscordClient = clients.DJDiscordClient(self, self.req_channel, self.play_channel, self.os_model)
+        self.discord_client: clients.DJDiscordClient = clients.DJDiscordClient(self, self.req_channel, self.play_channel)
         self.youtube_client: clients.DJYoutubeClient = clients.DJYoutubeClient(self, self.youtube_token)
 
     # ----- Class methods -----

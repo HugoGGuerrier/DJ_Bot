@@ -11,8 +11,6 @@ def create_base_config():
     config_str: str = "# ----- This is the bot configuration file (CHANGE HERE !) -----\n\n"
     config_str += "DISCORD_TOKEN = \"\"\n"
     config_str += "YOUTUBE_TOKEN = \"\"\n\n"
-    config_str += "# Set your os model here (win64 or linux64)\n"
-    config_str += "OS = \"linux64\"\n\n"
     config_str += "LOG_FILE = None\n\n"
     config_str += "REQUEST_CHANNEL = \"dj-request\"\n"
     config_str += "PLAYING_CHANNEL = \"general\"\n"
@@ -25,7 +23,7 @@ def create_base_config():
 
 # The main that configure and start the bot
 def main() -> int:
-    # Verify the config file
+    # Verify the config file or create the default config else
     config_file_path: pathlib.Path = pathlib.Path("./config.py")
     if not config_file_path.is_file():
         create_base_config()
@@ -43,8 +41,16 @@ def main() -> int:
     logging.basicConfig(filemode="w", filename=config.LOG_FILE, level=logging.INFO)
 
     # Create the discord bot
-    dj_bot = bot.DJBot(config.DISCORD_TOKEN, config.YOUTUBE_TOKEN, config.OS, config.REQUEST_CHANNEL, config.PLAYING_CHANNEL,
-                       config.ADMIN_USERS, config.ADMIN_ROLES, config.QUEUE_MAX_SIZE, config.MAX_RESULT)
+    dj_bot = bot.DJBot(
+        discord_token=config.DISCORD_TOKEN,
+        youtube_token=config.YOUTUBE_TOKEN,
+        request_channel=config.REQUEST_CHANNEL,
+        playing_channel=config.PLAYING_CHANNEL,
+        admin_users=config.ADMIN_USERS,
+        admin_roles=config.ADMIN_ROLES,
+        queue_max_size=config.QUEUE_MAX_SIZE,
+        max_result=config.MAX_RESULT
+    )
 
     # Start the bot
     dj_bot.start()
