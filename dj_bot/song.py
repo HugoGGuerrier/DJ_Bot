@@ -14,7 +14,7 @@ class Song:
 
     # ----- Constructor -----
 
-    def __init__(self, title: str, video_id: str, duration: str):
+    def __init__(self, title: str, video_id: str, duration: str, user: str):
         """
         Create a new song with all its parameters
 
@@ -29,6 +29,7 @@ class Song:
         self.title: str = title
         self.video_id: str = video_id
         self.duration: str = duration
+        self.user: str = user
         self.is_ready: bool = False
         self.ready_func = None
 
@@ -45,7 +46,8 @@ class Song:
         song_dict: dict = {
             "title": self.title,
             "video_id": self.video_id,
-            "duration": self.duration
+            "duration": self.duration,
+            "user": self.user
         }
 
         # Return the json string
@@ -64,7 +66,7 @@ class Song:
         song_dict = json.loads(src)
 
         # Return a new song with the parameters
-        return cls(song_dict["title"], song_dict["video_id"], song_dict["duration"])
+        return cls(song_dict["title"], song_dict["video_id"], song_dict["duration"], song_dict["user"])
 
     # ----- Class methods -----
 
@@ -75,7 +77,7 @@ class Song:
         return -> str = The string
         """
 
-        res: str = self.title + " [" + self.duration + "]"
+        res: str = self.title + " [" + self.duration + "] (" + self.user + ")"
         if self.is_ready:
             res += " Ready"
         else:

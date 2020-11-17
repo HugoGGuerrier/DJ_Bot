@@ -52,22 +52,11 @@ class DJDiscordClient(discord.Client):
         # Extract the command from the message
         com: command.Command = command.Command(message.content)
 
-        # Remove the request message to keep the board clean
-        if com.name != "" and self.remove_req:
-            try:
-                self.loop.create_task(message.delete())
-            except discord.Forbidden as _:
-                logging.getLogger(LOGGER_NAME).warning("Cannot remove message from the listening channel : Forbidden")
-            except discord.NotFound as _:
-                pass
-            except discord.HTTPException as _:
-                logging.getLogger(LOGGER_NAME).warning("Cannot remove message from the listening channel : HTTPError")
-
         # Handle every command
         if com.name == "!help" or com.name == "!h":
             self.dj_bot.show_help()
         elif com.name == "!play" or com.name == "!pl":
-            self.dj_bot.add_music(com.arg)
+            self.dj_bot.add_music(com.arg, message.author)
         elif com.name == "!skip" or com.name == "!sk":
             self.dj_bot.skip_music()
         elif com.name == "!pause" or com.name == "!pa":
@@ -88,6 +77,19 @@ class DJDiscordClient(discord.Client):
             self.dj_bot.clean_song_cache(message.author)
         elif com.name == "!shutdown":
             self.dj_bot.shutdown(message.author)
+
+        # Remove the request message to keep the board clean
+        if com.name != "!shutdown" and com.name != "" and self.remove_req:
+            try:
+                self.loop.create_task(message.delete())
+            except discord.Forbidden as _:
+                logging.getLogger(LOGGER_NAME).warning(
+                    "Cannot remove message from the listening channel : Forbidden")
+            except discord.NotFound as _:
+                pass
+            except discord.HTTPException as _:
+                logging.getLogger(LOGGER_NAME).warning(
+                    "Cannot remove message from the listening channel : HTTPError")
 
     def send_message(self, message: str) -> None:
         """

@@ -99,10 +99,10 @@ class DJBot:
             self.song_queue.append(sng)
             self.youtube_client.download_song(sng)
             if feedback:
-                self.send_message("Song \"" + sng.title + "\" is added to the queue :smile:")
+                self.send_message(sng.user + " add song \"" + sng.title + "\" to the queue  :smile:")
         else:
             if feedback:
-                self.send_error_message("Cannot add a song, the queue is full  :disappointed_relieved:")
+                self.send_error_message("Sorry " + sng.user + ", but the queue is full  :disappointed_relieved:")
 
     def song_is_ready(self, sng: song.Song) -> None:
         """
@@ -137,7 +137,7 @@ class DJBot:
 
     # --- Music manipulation methods
 
-    def add_music(self, title: str) -> None:
+    def add_music(self, title: str, user: discord.Member) -> None:
         """
         Method call by the discord client when a user add a music with the !play command
 
@@ -149,7 +149,7 @@ class DJBot:
         song_dict: dict = self.youtube_client.get_first_video(title)
 
         # Create and add the song instance
-        sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"])
+        sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"], user.display_name)
         self.add_song(sng)
 
     def choose_search(self, choose_id: str, user: discord.Member) -> None:
@@ -171,7 +171,7 @@ class DJBot:
                 try:
                     # Get the correct song dict and create the song instance
                     song_dict: dict = user_search[int(choose_id) - 1]
-                    sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"])
+                    sng: song.Song = song.Song(song_dict["title"], song_dict["id"], song_dict["duration"], user.display_name)
                     self.add_song(sng)
 
                     # Erase the user search
@@ -230,7 +230,7 @@ class DJBot:
         # Verify that the user is an admin
         if self.is_admin(user):
             self.song_queue.clear()
-            self.send_message("Queue has been cleaned")
+            self.send_message("Queue has been cleaned  :thumbsup:")
         else:
             self.send_message("You are not an admin  :middle_finger:")
 
@@ -313,7 +313,7 @@ class DJBot:
         self.user_search[user_name] = search_result
 
         # Create the search message
-        search_message: str = "Result for \"" + search_q + "\" :\n"
+        search_message: str = user.display_name + " here is the result for \"" + search_q + "\" :\n"
         search_message += "```\n"
         for i in range(len(search_result)):
             search_message += str(i + 1) + ". "
@@ -426,7 +426,7 @@ class DJBot:
             except FileNotFoundError as _:
                 pass
             self.clean_song_files()
-            self.send_message("Song cache has been cleaned")
+            self.send_message("Song cache has been cleaned  :thumbsup:")
         else:
             self.send_message("You are not an admin  :middle_finger:")
 
