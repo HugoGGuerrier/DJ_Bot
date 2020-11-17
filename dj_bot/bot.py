@@ -99,10 +99,10 @@ class DJBot:
             self.song_queue.append(sng)
             self.youtube_client.download_song(sng)
             if feedback:
-                self.send_message(sng.user + " add song \"" + sng.title + "\" to the queue  :smile:")
+                self.send_message("**" + sng.user + "** add the song **" + sng.title + "** to the queue  :smile:")
         else:
             if feedback:
-                self.send_error_message("Sorry " + sng.user + ", but the queue is full  :disappointed_relieved:")
+                self.send_error_message("Sorry **" + sng.user + "**, but the queue is full  :disappointed_relieved:")
 
     def song_is_ready(self, sng: song.Song) -> None:
         """
