@@ -68,7 +68,7 @@ class DJDiscordClient(discord.Client):
             self.dj_bot.show_queue()
         elif com.name == "!search" or com.name == "!se":
             self.dj_bot.show_search(com.arg, message.author)
-        elif com.name == "!choose" or com.name == "ch":
+        elif com.name == "!choose" or com.name == "!ch":
             self.dj_bot.choose_search(com.arg, message.author)
         elif com.name == "!empty-queue":
             self.dj_bot.empty_queue(message.author)
@@ -127,8 +127,9 @@ class DJDiscordClient(discord.Client):
         Disconnect the bot from the discord server
         """
 
+        self.stop_song()
         self.play_chan_client.cleanup()
-        self.loop.create_task(self.play_chan_client.disconnect(force=True))
+        self.loop.create_task(self.play_chan_client.disconnect())
 
     # ------ Handling methods -----
 
@@ -146,6 +147,9 @@ class DJDiscordClient(discord.Client):
 
         # Log the bot state
         logging.getLogger(LOGGER_NAME).info("DJ Bot is started and ready, listen to " + self.req_chan_name)
+
+        # Load the previous bot state
+        self.dj_bot.load()
 
     async def on_message(self, message: discord.Message) -> None:
         """

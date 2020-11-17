@@ -2,6 +2,7 @@ from dj_bot import LOGGER_NAME, FFMPEG_DIR, DOWNLOAD_DIR
 
 import logging
 import discord
+import json
 
 
 class Song:
@@ -13,7 +14,7 @@ class Song:
 
     # ----- Constructor -----
 
-    def __init__(self, title: str, video_id: str, duration: str, ready_func=None):
+    def __init__(self, title: str, video_id: str, duration: str):
         """
         Create a new song with all its parameters
 
@@ -29,7 +30,41 @@ class Song:
         self.video_id: str = video_id
         self.duration: str = duration
         self.is_ready: bool = False
-        self.ready_func = ready_func
+        self.ready_func = None
+
+    # ----- Serialization -----
+
+    def serialize(self) -> str:
+        """
+        Serialize the song in a json string
+
+        return -> str = The json string of the song
+        """
+
+        # Create the dict to create the json
+        song_dict: dict = {
+            "title": self.title,
+            "video_id": self.video_id,
+            "duration": self.duration
+        }
+
+        # Return the json string
+        return json.dumps(song_dict)
+
+    @classmethod
+    def deserialize(cls, src: str):
+        """
+        Return a Song with the serialized string
+
+        params :
+            - src: str = The json string
+        """
+
+        # Load the dict from the string
+        song_dict = json.loads(src)
+
+        # Return a new song with the parameters
+        return cls(song_dict["title"], song_dict["video_id"], song_dict["duration"])
 
     # ----- Class methods -----
 
@@ -59,12 +94,12 @@ class Song:
             # Set the state to ready
             self.is_ready = True
 
+            # Log the song downloading success
+            logging.getLogger(LOGGER_NAME).info("Song " + self.title + " - " + self.video_id + " has been downloaded")
+
             # Call the callback function
             if self.ready_func is not None:
                 self.ready_func(self)
-
-            # Log the song downloading
-            logging.getLogger(LOGGER_NAME).info("Song " + self.title + " - " + self.video_id + " has been downloaded")
 
     def get_audio_source(self) -> discord.AudioSource:
         """

@@ -28,11 +28,14 @@ class Command:
         Parse the command string
         """
 
-        # Split the command into two parts
-        tmp_list: list = self.command_str.split(" ", 1)
+        # Verify the command length and existence
+        if self.command_str is not None and len(self.command_str) >= 1:
 
-        # Verify the command format
-        if tmp_list[0][0] == "!":
-            self.name = tmp_list[0]
-            if len(tmp_list) == 2:
-                self.arg = tmp_list[1]
+            # Split the command into two parts
+            tmp_list: list = self.command_str.split(" ", 1)
+
+            # Verify the command format
+            if tmp_list[0][0] == "!":
+                self.name = tmp_list[0]
+                if len(tmp_list) == 2:
+                    self.arg = tmp_list[1]

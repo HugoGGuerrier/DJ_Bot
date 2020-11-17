@@ -1,8 +1,10 @@
 from dj_bot import clients, song, utils
-from dj_bot import DOWNLOAD_DIR, CACHE_FILE
+from dj_bot import DOWNLOAD_DIR, CACHE_FILE, SAVE_FILE, LOGGER_NAME
 
 import discord
+import json
 import os
+import logging
 
 # ----- DJBot states -----
 
@@ -82,21 +84,23 @@ class DJBot:
         # Return the default response
         return False
 
-    def add_song(self, sng: song.Song) -> None:
+    def add_song(self, sng: song.Song, feedback=True) -> None:
         """
         Add a song to the current queue with size verification adn download it
 
         params :
-            - song_dict: dj_bot.song.Song = A song dict that correspond to the song you want to add
+            - sng: dj_bot.song.Song = A song you want to add to the queue
         """
 
         if len(self.song_queue) < self.queue_max_size:
             sng.ready_func = self.song_is_ready
             self.song_queue.append(sng)
             self.youtube_client.download_song(sng)
-            self.send_message("Song \"" + sng.title + "\" is added to the queue :smile:")
+            if feedback:
+                self.send_message("Song \"" + sng.title + "\" is added to the queue :smile:")
         else:
-            self.send_error_message("Cannot add a song, the queue is full  :disappointed_relieved:")
+            if feedback:
+                self.send_error_message("Cannot add a song, the queue is full  :disappointed_relieved:")
 
     def song_is_ready(self, sng: song.Song) -> None:
         """
@@ -223,7 +227,7 @@ class DJBot:
 
         # Verify that the user is an admin
         if self.is_admin(user):
-            self.song_queue = list()
+            self.song_queue.clear()
             self.send_message("Queue has been cleaned")
         else:
             self.send_message("You are not an admin  :middle_finger:")
@@ -343,6 +347,50 @@ class DJBot:
 
     # --- Bot control methods
 
+    def save(self) -> None:
+        """
+        Save the current bot state in a file to load it the next time
+        """
+
+        # Create the export dict
+        res_dict: dict = {
+            "current": None,
+            "queue": list()
+        }
+
+        # Create the current song string
+        if self.current_song is not None:
+            res_dict["current"] = self.current_song.serialize()
+
+        # Fill the queue in the export dict
+        for sng in self.song_queue:
+            res_dict["queue"].append(sng.serialize())
+
+        # Open the save file
+        save_file = open(SAVE_FILE, mode="w")
+        save_file.write(json.dumps(res_dict))
+        save_file.close()
+
+    def load(self) -> None:
+        """
+        Load the bot state from the save file
+        """
+
+        # Open and read the save file
+        try:
+            save_file = open(SAVE_FILE, mode="r")
+            save_dict = json.loads(save_file.read())
+            save_file.close()
+
+            # Reload the current song
+            self.add_song(song.Song.deserialize(save_dict["current"]), False)
+
+            # Reload the queue
+            for sng_str in save_dict["queue"]:
+                self.add_song(song.Song.deserialize(sng_str), False)
+        except FileNotFoundError as _:
+            logging.getLogger(LOGGER_NAME).info("Save file not found, one will be created")
+
     def clean_song_files(self) -> None:
         """
         Erase all song files except those that are needed
@@ -386,13 +434,6 @@ class DJBot:
 
         self.discord_client.run(self.discord_token)
 
-    def save(self) -> None:
-        """
-        Save the current bot state in a file to load it the next time
-        """
-
-        pass
-
     def shutdown(self, user: discord.Member) -> None:
         """
         Method called by the discord client to shutdown the bot
@@ -403,6 +444,7 @@ class DJBot:
 
         # Verify that the user is an admin
         if self.is_admin(user):
+            self.save()
             self.stop()
         else:
             self.send_message("You are not an admin  :middle_finger:")

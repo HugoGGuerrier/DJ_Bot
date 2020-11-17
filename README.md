@@ -28,4 +28,4 @@ Author : Guerrier Hugo
 
 * ```$ python3 main.py```
 * Open the ```config.py``` file to configure the bot
-* Now you can start the projet just by launching the ```main.py``` script
+* Now you can start the bot just by launching the ```main.py``` script
