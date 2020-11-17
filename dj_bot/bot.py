@@ -196,9 +196,9 @@ class DJBot:
                 except ValueError as _:
                     self.send_message("Id must be an integer  :angry:")
                 except IndexError as _:
-                    self.send_message("Choose an id between 0 and " + str(len(user_search) - 1) + " (you stupid)")
+                    self.send_message("Choose an id between 1 and " + str(len(user_search)) + " (you stupid)")
             else:
-                self.send_message("Choose an id between 0 and " + str(len(user_search) - 1) + " (you stupid)")
+                self.send_message("Choose an id between 1 and " + str(len(user_search)) + " (you stupid)")
         else:
             self.send_message("Perform a **_!search_** before choosing an id  :slight_smile:")
 
@@ -235,6 +235,25 @@ class DJBot:
         if self.state == PAUSE_STATE:
             self.state = PLAY_STATE
             self.discord_client.resume_song()
+
+    def pop_queue(self, song_index: str):
+        """
+        Remove a song from the queue
+
+        params :
+            - song_index: str = The song index you want to remove
+        """
+
+        # Try to remove the wanted item and catch exceptions
+        try:
+            song_id = int(song_index) - 1
+            if 0 <= song_id < len(self.song_queue):
+                removed = self.song_queue.pop(song_id)
+                self.send_message("Song **" + removed.title + "** is removed from the queue")
+            else:
+                self.send_message("Choose an id between 1 and " + str(len(self.song_queue)) + " (you stupid)")
+        except ValueError as _:
+            self.send_message("Choose an id between 1 and " + str(len(self.song_queue)) + " (you stupid)")
 
     def empty_queue(self, user: discord.Member) -> None:
         """
@@ -275,6 +294,7 @@ class DJBot:
         help_message += "!pop <ID> : Remove the song n°ID from the queue\n"
         help_message += "!ban <USER> : Ban the user (Admin)\n"
         help_message += "!unban <USER> : Unban the user (Admin)\n"
+        help_message += "!shame : Show the list banned users (Admin)\n"
         help_message += "!empty-queue : Empty the music queue (Admin)\n"
         help_message += "!clean-cache : Clean the song cache (Admin)\n"
         help_message += "!shutdown : Stop me (Admin)\n"
@@ -340,10 +360,28 @@ class DJBot:
             search_message += search_result[i]["title"] + " - " + search_result[i]["channel_title"]
             search_message += " [" + search_result[i]["duration"] + "]\n"
         search_message += "```"
-        search_message += "Type **_!choose <ID>_** to add a song to the queue"
+        search_message += "Type `!choose <ID>` to add a song to the queue"
 
         # Send the message
         self.send_message(search_message)
+
+    def show_banned(self, user: discord.Member) -> None:
+        """
+        Show all banned members
+
+        params :
+            - user: discord.Member = The user who made the request
+        """
+
+        # Create the shame list
+        shame_list = "Current banned users are :"
+        shame_list += "```\n"
+        for ban in self.banned_user:
+            shame_list += ban
+        shame_list += "```"
+
+        # Send the message
+        self.send_message(shame_list)
 
     def send_message(self, message: str) -> None:
         """
@@ -466,12 +504,10 @@ class DJBot:
         # Verify the user is an admin
         if self.is_admin(user):
             # Verify the user doesn't auto-ban
-            if user_name != user.display_name:
-
-                # Search the user real name in the server
-                for chan_user in self.discord_client.req_chan.members:
-                    if chan_user.display_name == user_name:
-                        self.banned_user.append(utils.get_user_fullname(chan_user))
+            if user_name != utils.get_user_fullname(user):
+                # Add the user to the banned list
+                self.banned_user.append(user_name)
+                self.send_message("**" + user_name + "**, I sentence you to jaz... to BAN !!!")
             else:
                 self.send_message("You cannot auto-ban you stupid !")
         else:
@@ -488,11 +524,9 @@ class DJBot:
 
         # Verify the user is an admin
         if self.is_admin(user):
-
             # Search the user real name in the server
-            for chan_user in self.discord_client.req_chan.members:
-                if chan_user.display_name == user_name:
-                    self.banned_user = list(filter(lambda a: a != utils.get_user_fullname(chan_user), self.banned_user))
+            self.banned_user = list(filter(lambda a: a != user_name, self.banned_user))
+            self.send_message("**" + user_name + "** was not an Impostor")
         else:
             self.send_message("You are not an admin  :middle_finger:")
 

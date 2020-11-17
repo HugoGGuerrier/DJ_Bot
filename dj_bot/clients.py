@@ -68,6 +68,8 @@ class DJDiscordClient(discord.Client):
             self.dj_bot.show_current()
         elif com.name == "!queue" or com.name == "!qu":
             self.dj_bot.show_queue()
+        elif com.name == "!pop":
+            self.dj_bot.pop_queue(com.arg)
         elif com.name == "!search" or com.name == "!se":
             self.dj_bot.show_search(com.arg, message.author)
         elif com.name == "!choose" or com.name == "!ch":
@@ -76,6 +78,8 @@ class DJDiscordClient(discord.Client):
             self.dj_bot.ban_user(com.arg, message.author)
         elif com.name == "!unban":
             self.dj_bot.unban_user(com.arg, message.author)
+        elif com.name == "!shame":
+            self.dj_bot.show_banned(message.author)
         elif com.name == "!empty-queue":
             self.dj_bot.empty_queue(message.author)
         elif com.name == "!clean-cache":
