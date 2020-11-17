@@ -52,23 +52,23 @@ class DJDiscordClient(discord.Client):
         com: command.Command = command.Command(message.content)
 
         # Handle every command
-        if com.name == "!help":
+        if com.name == "!help" or com.name == "!h":
             self.dj_bot.show_help()
-        elif com.name == "!play":
+        elif com.name == "!play" or com.name == "!pl":
             self.dj_bot.add_music(com.arg)
-        elif com.name == "!skip":
+        elif com.name == "!skip" or com.name == "!sk":
             self.dj_bot.skip_music()
-        elif com.name == "!pause":
+        elif com.name == "!pause" or com.name == "!pa":
             self.dj_bot.pause_music()
-        elif com.name == "!resume":
+        elif com.name == "!resume" or com.name == "!re":
             self.dj_bot.resume_music()
-        elif com.name == "!current":
+        elif com.name == "!current" or com.name == "!cu":
             self.dj_bot.show_current()
-        elif com.name == "!queue":
+        elif com.name == "!queue" or com.name == "!qu":
             self.dj_bot.show_queue()
-        elif com.name == "!search":
+        elif com.name == "!search" or com.name == "!se":
             self.dj_bot.show_search(com.arg, message.author)
-        elif com.name == "!choose":
+        elif com.name == "!choose" or com.name == "ch":
             self.dj_bot.choose_search(com.arg, message.author)
         elif com.name == "!empty-queue":
             self.dj_bot.empty_queue(message.author)
