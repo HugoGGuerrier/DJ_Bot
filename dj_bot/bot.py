@@ -31,7 +31,8 @@ class DJBot:
             admin_users: list,
             admin_roles: list,
             queue_max_size: int,
-            max_result: int
+            max_result: int,
+            remove_req: bool
     ):
         """
         Create a new bot with the wanted parameters
@@ -46,13 +47,14 @@ class DJBot:
         self.admin_roles: list = admin_roles
         self.queue_max_size = queue_max_size
         self.max_result: int = max_result
+        self.remove_req: bool = remove_req
 
         self.state: int = IDLE_STATE
         self.song_queue: list = list()
         self.current_song: song.Song = None
         self.user_search: dict = dict()
 
-        self.discord_client: clients.DJDiscordClient = clients.DJDiscordClient(self, self.req_channel, self.play_channel)
+        self.discord_client: clients.DJDiscordClient = clients.DJDiscordClient(self, self.req_channel, self.play_channel, self.remove_req)
         self.youtube_client: clients.DJYoutubeClient = clients.DJYoutubeClient(self, self.youtube_token)
 
     # ----- Class methods -----
@@ -383,7 +385,8 @@ class DJBot:
             save_file.close()
 
             # Reload the current song
-            self.add_song(song.Song.deserialize(save_dict["current"]), False)
+            if save_dict["current"] is not None:
+                self.add_song(song.Song.deserialize(save_dict["current"]), False)
 
             # Reload the queue
             for sng_str in save_dict["queue"]:

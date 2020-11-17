@@ -17,7 +17,7 @@ class DJDiscordClient(discord.Client):
 
     # ----- Constructor -----
 
-    def __init__(self, dj_bot, request_channel: str, playing_channel: str):
+    def __init__(self, dj_bot, request_channel: str, playing_channel: str, remove_req: bool):
         """
         Create a new discord client with the request and the playing channel
 
@@ -34,6 +34,7 @@ class DJDiscordClient(discord.Client):
         self.dj_bot: bot.DJBot = dj_bot
         self.req_chan_name: str = request_channel
         self.play_chan_name: str = playing_channel
+        self.remove_req: bool = remove_req
         self.req_chan: discord.TextChannel = None
         self.play_chan: discord.VoiceChannel = None
         self.play_chan_client: discord.VoiceClient = None
@@ -50,6 +51,17 @@ class DJDiscordClient(discord.Client):
 
         # Extract the command from the message
         com: command.Command = command.Command(message.content)
+
+        # Remove the request message to keep the board clean
+        if com.name != "" and self.remove_req:
+            try:
+                self.loop.create_task(message.delete())
+            except discord.Forbidden as _:
+                logging.getLogger(LOGGER_NAME).warning("Cannot remove message from the listening channel : Forbidden")
+            except discord.NotFound as _:
+                pass
+            except discord.HTTPException as _:
+                logging.getLogger(LOGGER_NAME).warning("Cannot remove message from the listening channel : HTTPError")
 
         # Handle every command
         if com.name == "!help" or com.name == "!h":

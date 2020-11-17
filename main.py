@@ -18,6 +18,7 @@ def create_base_config():
     config_str += "ADMIN_ROLES = []\n"
     config_str += "QUEUE_MAX_SIZE = 30\n"
     config_str += "MAX_RESULT = 10\n"
+    config_str += "REMOVE_REQUEST_MESSAGE = False\n"
     config_file.write(config_str)
 
 
@@ -49,7 +50,8 @@ def main() -> int:
         admin_users=config.ADMIN_USERS,
         admin_roles=config.ADMIN_ROLES,
         queue_max_size=config.QUEUE_MAX_SIZE,
-        max_result=config.MAX_RESULT
+        max_result=config.MAX_RESULT,
+        remove_req=config.REMOVE_REQUEST_MESSAGE
     )
 
     # Start the bot
