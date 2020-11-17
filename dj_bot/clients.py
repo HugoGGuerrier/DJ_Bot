@@ -6,6 +6,7 @@ import googleapiclient.discovery
 import youtube_dl as yt
 import logging
 import threading
+import html
 
 
 class DJDiscordClient(discord.Client):
@@ -242,9 +243,9 @@ class DJYoutubeClient:
         for raw_item in raw_result["items"]:
             final_item = dict()
             final_item["id"] = raw_item["id"]["videoId"]
-            final_item["title"] = raw_item["snippet"]["title"]
-            final_item["channel_title"] = raw_item["snippet"]["channelTitle"]
-            final_item["description"] = raw_item["snippet"]["description"]
+            final_item["title"] = html.unescape(raw_item["snippet"]["title"])
+            final_item["channel_title"] = html.unescape(raw_item["snippet"]["channelTitle"])
+            final_item["description"] = html.unescape(raw_item["snippet"]["description"])
 
             video_id_list.append(raw_item["id"]["videoId"])
             final_result.append(final_item)
