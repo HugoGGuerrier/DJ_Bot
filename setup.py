@@ -1,11 +1,11 @@
 import os
 import sys
+import subprocess
 import math
 import shutil
 import urllib.request
 import tarfile
 import zipfile
-import pip
 
 
 # ----- Setup script for the DJ_bot application -----
@@ -154,6 +154,6 @@ shutil.rmtree(tmp_dir, ignore_errors=True)
 
 # Install the pip dependencies
 print("\n===== Install pip dependencies =====\n")
-pip.main(["install", "-r", "requirements.txt"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
 print("\n===== Installation complete ======")
