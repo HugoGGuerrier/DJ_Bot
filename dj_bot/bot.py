@@ -53,6 +53,7 @@ class DJBot:
         self.song_queue: list = list()
         self.current_song: song.Song = None
         self.user_search: dict = dict()
+        self.banned_user: list = list()
 
         self.discord_client: clients.DJDiscordClient = clients.DJDiscordClient(self, self.req_channel, self.play_channel, self.remove_req)
         self.youtube_client: clients.DJYoutubeClient = clients.DJYoutubeClient(self, self.youtube_token)
@@ -85,6 +86,22 @@ class DJBot:
 
         # Return the default response
         return False
+
+    def is_banned(self, user: discord.Member) -> bool:
+        """
+        Get if a user is banned or not
+
+        params :
+            - user: discord.Member = A discord member
+
+        return -> bool = True if the user is banned, False else
+        """
+
+        # Get the user real name
+        user_name = utils.get_user_fullname(user)
+
+        # Return if the user is in the banned list
+        return user_name in self.banned_user
 
     def add_song(self, sng: song.Song, feedback=True) -> None:
         """
@@ -255,9 +272,12 @@ class DJBot:
         help_message += "!choose (!ch) <ID> : Choose a search result\n"
         help_message += "!current (!cu) : Display the current song"
         help_message += "!queue (!qu) : Display playing queue\n"
+        help_message += "!pop <ID> : Remove the song n°ID from the queue\n"
+        help_message += "!ban <USER> : Ban the user (Admin)\n"
+        help_message += "!unban <USER> : Unban the user (Admin)\n"
         help_message += "!empty-queue : Empty the music queue (Admin)\n"
         help_message += "!clean-cache : Clean the song cache (Admin)\n"
-        help_message += "!shutdown : Stop me :'( (Admin)\n"
+        help_message += "!shutdown : Stop me (Admin)\n"
         help_message += "```"
 
         # Send the help message
@@ -357,7 +377,8 @@ class DJBot:
         # Create the export dict
         res_dict: dict = {
             "current": None,
-            "queue": list()
+            "queue": list(),
+            "banned": self.banned_user
         }
 
         # Create the current song string
@@ -391,6 +412,9 @@ class DJBot:
             # Reload the queue
             for sng_str in save_dict["queue"]:
                 self.add_song(song.Song.deserialize(sng_str), False)
+
+            # Reload the banned users
+            self.banned_user = save_dict["banned"]
         except FileNotFoundError as _:
             logging.getLogger(LOGGER_NAME).info("Save file not found, one will be created")
 
@@ -427,6 +451,48 @@ class DJBot:
                 pass
             self.clean_song_files()
             self.send_message("Song cache has been cleaned  :thumbsup:")
+        else:
+            self.send_message("You are not an admin  :middle_finger:")
+
+    def ban_user(self, user_name: str, user: discord.Member) -> None:
+        """
+        Exclude an user from the bot utilisation by its display name
+
+        params :
+            - user_name: str = The user name to ban from the bot
+            - user: discord.Member = The user who made the request
+        """
+
+        # Verify the user is an admin
+        if self.is_admin(user):
+            # Verify the user doesn't auto-ban
+            if user_name != user.display_name:
+
+                # Search the user real name in the server
+                for chan_user in self.discord_client.req_chan.members:
+                    if chan_user.display_name == user_name:
+                        self.banned_user.append(utils.get_user_fullname(chan_user))
+            else:
+                self.send_message("You cannot auto-ban you stupid !")
+        else:
+            self.send_message("You are not an admin  :middle_finger:")
+
+    def unban_user(self, user_name: str, user: discord.Member):
+        """
+        Remove an user from the exclusion list
+
+        params :
+            - user_name: str = The user name to unban
+            - user: discord.Member = The user who made the request
+        """
+
+        # Verify the user is an admin
+        if self.is_admin(user):
+
+            # Search the user real name in the server
+            for chan_user in self.discord_client.req_chan.members:
+                if chan_user.display_name == user_name:
+                    self.banned_user = list(filter(lambda a: a != utils.get_user_fullname(chan_user), self.banned_user))
         else:
             self.send_message("You are not an admin  :middle_finger:")
 

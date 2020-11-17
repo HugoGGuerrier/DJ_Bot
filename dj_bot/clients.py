@@ -72,6 +72,10 @@ class DJDiscordClient(discord.Client):
             self.dj_bot.show_search(com.arg, message.author)
         elif com.name == "!choose" or com.name == "!ch":
             self.dj_bot.choose_search(com.arg, message.author)
+        elif com.name == "!ban":
+            self.dj_bot.ban_user(com.arg, message.author)
+        elif com.name == "!unban":
+            self.dj_bot.unban_user(com.arg, message.author)
         elif com.name == "!empty-queue":
             self.dj_bot.empty_queue(message.author)
         elif com.name == "!clean-cache":
@@ -174,8 +178,8 @@ class DJDiscordClient(discord.Client):
             - message: discord.Message = The new message
         """
 
-        # Verify the message channel and process it
-        if message.channel.name == self.req_chan_name:
+        # Verify the message channel and the user banning state
+        if message.channel.name == self.req_chan_name and not self.dj_bot.is_banned(message.author):
             self.process_command(message)
 
 
