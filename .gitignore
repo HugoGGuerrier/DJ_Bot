@@ -1,5 +1,24 @@
+# The PyCharm IDE
 .idea/
+*.iml
+
+# Python cache
+__pycache__
+*/__pycache__
+
+# Virtual environment
+bin
+lib
+pyvenv.cfg
+venv
+
+# ffmpeg binaries
+ffmpeg
+
+# The app file to ignore
 config.py
 DJ_Bot.log
-__pycache__
-dj_bot/__pycache__
+.song_cache
+.songs
+.tmp
+.save
