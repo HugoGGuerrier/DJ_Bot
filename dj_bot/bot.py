@@ -289,7 +289,7 @@ class DJBot:
         help_message += "!resume (!re) : Resume the previously paused music\n"
         help_message += "!search (!se) <SONG> : List songs on youtube\n"
         help_message += "!choose (!ch) <ID> : Choose a search result\n"
-        help_message += "!current (!cu) : Display the current song"
+        help_message += "!current (!cu) : Display the current song\n"
         help_message += "!queue (!qu) : Display playing queue\n"
         help_message += "!pop <ID> : Remove the song n°ID from the queue\n"
         help_message += "!ban <USER> : Ban the user (Admin)\n"
